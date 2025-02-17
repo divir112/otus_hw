@@ -9,6 +9,8 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
+const shielding = '\\'
+
 func Unpack(str string) (string, error) {
 	var result strings.Builder
 	prevIsDigit := true
@@ -16,29 +18,19 @@ func Unpack(str string) (string, error) {
 	letters := []rune(str)
 
 	for i := 0; i < len(letters); i++ {
+		if err := validate(prevIsShielding, prevIsDigit, letters[i]); err != nil {
+			return "", err
+		}
 
-		if !prevIsShielding && letters[i] == '\\' {
+		if !prevIsShielding && letters[i] == shielding {
 			prevIsShielding = true
 			prevIsDigit = false
 			continue
 		}
 
-		if prevIsShielding && (!unicode.IsDigit(letters[i]) && letters[i] != '\\') {
-			return "", ErrInvalidString
-		}
-
-		if unicode.IsDigit(letters[i]) {
-			if prevIsDigit {
-				return "", ErrInvalidString
-			}
-
-			if prevIsShielding {
-				prevIsDigit = false
-			} else {
-				prevIsDigit = true
-				continue
-			}
-
+		if unicode.IsDigit(letters[i]) && !prevIsShielding {
+			prevIsDigit = true
+			continue
 		}
 
 		if len(letters)-1 == i {
@@ -54,11 +46,21 @@ func Unpack(str string) (string, error) {
 			for j := 0; j < iterations; j++ {
 				result.WriteRune(letters[i])
 			}
-
 		} else {
 			result.WriteRune(letters[i])
 		}
 		prevIsShielding = false
 	}
 	return result.String(), nil
+}
+
+func validate(prevIsShielding, prevIsDigit bool, letter rune) error {
+	if prevIsShielding && (!unicode.IsDigit(letter) && letter != shielding) {
+		return ErrInvalidString
+	}
+
+	if unicode.IsDigit(letter) && prevIsDigit {
+		return ErrInvalidString
+	}
+	return nil
 }
