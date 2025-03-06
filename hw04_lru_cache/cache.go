@@ -11,18 +11,20 @@ type Cache interface {
 }
 
 type lruCache struct {
-	mx       *sync.Mutex
-	capacity int
-	queue    List
-	items    map[Key]*ListItem
+	mx            *sync.Mutex
+	capacity      int
+	queue         List
+	items         map[Key]*ListItem
+	reversedItems map[*ListItem]Key
 }
 
 func NewCache(capacity int) Cache {
 	return &lruCache{
-		mx:       &sync.Mutex{},
-		capacity: capacity,
-		queue:    NewList(),
-		items:    make(map[Key]*ListItem, capacity),
+		mx:            &sync.Mutex{},
+		capacity:      capacity,
+		queue:         NewList(),
+		items:         make(map[Key]*ListItem, capacity),
+		reversedItems: make(map[*ListItem]Key, capacity),
 	}
 }
 
@@ -39,16 +41,20 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 		lastItem := c.queue.Back()
 		c.queue.Remove(lastItem)
 
-		for k, v := range c.items {
-			if v == lastItem {
-				delete(c.items, k)
-				break
-			}
-		}
+		key := c.reversedItems[lastItem]
+		delete(c.items, key)
+
+		// for k, v := range c.items {
+		// 	if v == lastItem {
+
+		// 		break
+		// 	}
+		// }
 	}
 
 	item := c.queue.PushFront(value)
 	c.items[key] = item
+	c.reversedItems[item] = key
 	return false
 }
 

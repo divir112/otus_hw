@@ -100,21 +100,29 @@ func (l *list) Remove(i *ListItem) {
 		return
 	}
 
+	if l.head == i {
+		defer func() {
+			l.len--
+		}()
+		l.head = i.Next
+		l.head.Prev = nil
+		return
+	}
+
+	if l.last == i {
+		defer func() {
+			l.len--
+		}()
+		l.last = i.Prev
+		l.last.Next = nil
+		return
+	}
+
 	for node := l.head; node != nil; node = node.Next {
 		if node == i {
 			defer func() {
 				l.len--
 			}()
-			switch i {
-			case l.head:
-				l.head = i.Next
-				l.head.Prev = nil
-				return
-			case l.last:
-				l.last = i.Prev
-				l.last.Next = nil
-				return
-			}
 			prevNode := node.Prev
 			nextNode := node.Next
 
@@ -139,6 +147,7 @@ func (l *list) MoveToFront(i *ListItem) {
 		return
 	default:
 		l.Remove(i)
+		l.head.Prev = i
 		i.Next = l.head
 		i.Prev = nil
 		l.head = i
