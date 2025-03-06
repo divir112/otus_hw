@@ -146,6 +146,6 @@ func TestCacheMultithreading(t *testing.T) {
 			c.Get(Key(strconv.Itoa(rand.Intn(1_000_000))))
 		}
 	}()
-	require.True(t, true) // Чтобы линтер не ругался
+	// require.True(t, true) // Чтобы линтер не ругался
 	wg.Wait()
 }

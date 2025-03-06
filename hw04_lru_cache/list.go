@@ -134,15 +134,6 @@ func (l *list) Remove(i *ListItem) {
 
 func (l *list) MoveToFront(i *ListItem) {
 	switch i {
-	case l.last:
-		i.Next = l.head
-		l.last = i.Prev
-		l.last.Next = nil
-		l.head = i
-		l.head.Prev = nil
-		if l.Len() == 2 {
-			l.last.Prev = l.head
-		}
 	case l.head:
 		return
 	default:
