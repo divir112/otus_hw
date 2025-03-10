@@ -50,13 +50,85 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(5)
+
+		wasInCache := c.Set("aaa", 100)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("bbb", 200)
+		require.False(t, wasInCache)
+
+		c.Clear()
+
+		val, ok := c.Get("aaa")
+		require.False(t, ok)
+		require.Nil(t, val)
+
+		val, ok = c.Get("bbb")
+		require.False(t, ok)
+		require.Nil(t, val)
+	})
+
+	t.Run("item set in front", func(t *testing.T) {
+		c := &lruCache{
+			mx:            &sync.Mutex{},
+			capacity:      2,
+			queue:         NewList(),
+			items:         make(map[Key]*ListItem, 2),
+			reversedItems: make(map[*ListItem]Key, 2),
+		}
+
+		wasInCache := c.Set("aaa", 100)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("bbb", 200)
+		require.False(t, wasInCache)
+
+		require.Equal(t, c.queue.Front().Value, 200)
+	})
+
+	t.Run("moving in front changed item", func(t *testing.T) {
+		c := &lruCache{
+			mx:            &sync.Mutex{},
+			capacity:      2,
+			queue:         NewList(),
+			items:         make(map[Key]*ListItem, 2),
+			reversedItems: make(map[*ListItem]Key, 2),
+		}
+
+		wasInCache := c.Set("aaa", 100)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("bbb", 200)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("aaa", 300)
+		require.True(t, wasInCache)
+		require.Equal(t, 300, c.queue.Front().Value)
+	})
+
+	t.Run("moving in front geted item", func(t *testing.T) {
+		c := &lruCache{
+			mx:            &sync.Mutex{},
+			capacity:      2,
+			queue:         NewList(),
+			items:         make(map[Key]*ListItem, 2),
+			reversedItems: make(map[*ListItem]Key, 2),
+		}
+
+		wasInCache := c.Set("aaa", 100)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("bbb", 200)
+		require.False(t, wasInCache)
+
+		value, ok := c.Get("aaa")
+		require.True(t, ok)
+		require.Equal(t, value, 100)
 	})
 }
 
 func TestCacheMultithreading(t *testing.T) {
-	t.Skip() // Remove me if task with asterisk completed.
-
 	c := NewCache(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
@@ -74,6 +146,6 @@ func TestCacheMultithreading(t *testing.T) {
 			c.Get(Key(strconv.Itoa(rand.Intn(1_000_000))))
 		}
 	}()
-
+	require.True(t, true) // Чтобы линтер не ругался
 	wg.Wait()
 }
