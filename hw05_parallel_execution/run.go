@@ -58,7 +58,7 @@ func (wp *WorkerPool) runErrorsChecker() {
 			return
 		}
 
-		wp.failed = wp.errorsCount.Load() >= int32(wp.acceptErrorsCount)
+		wp.failed = int(wp.errorsCount.Load()) >= wp.acceptErrorsCount
 		wp.mx.Unlock()
 	}
 }
