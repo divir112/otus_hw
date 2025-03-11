@@ -62,10 +62,8 @@ func TestRun(t *testing.T) {
 		go Run(tasks, workersCount, maxErrorsCount)
 
 		require.Eventually(t, func() bool {
-			return runTasksCount == int32(tasksCount)
+			return atomic.LoadInt32(&runTasksCount) == int32(tasksCount)
 		}, sumTime*time.Duration(tasksCount/workersCount), 500*time.Millisecond)
-
-		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 	})
 
 	t.Run("tasks zero max errors", func(t *testing.T) {
