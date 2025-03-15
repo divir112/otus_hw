@@ -12,34 +12,23 @@ type Task func() error
 
 type WorkerPool struct {
 	wg                *sync.WaitGroup
-	mx                *sync.RWMutex
-	workerCount       int
 	tasks             chan Task
-	failed            bool
-	stopped           bool
 	errorsCount       atomic.Int32
 	acceptErrorsCount int
 }
 
-func NewWorkerPool(workerCount int, tasks chan Task, acceptErrorsCount int) *WorkerPool {
+func NewWorkerPool(tasks chan Task, acceptErrorsCount int) *WorkerPool {
 	return &WorkerPool{
-		workerCount:       workerCount,
 		tasks:             tasks,
 		acceptErrorsCount: acceptErrorsCount,
 		wg:                &sync.WaitGroup{},
-		mx:                &sync.RWMutex{},
+		errorsCount:       atomic.Int32{},
 	}
 }
 
 func (wp *WorkerPool) addWorker() {
 	defer wp.wg.Done()
 	for task := range wp.tasks {
-		wp.mx.RLock()
-		stoppedOrFailed := wp.stopped || wp.failed
-		wp.mx.RUnlock()
-		if stoppedOrFailed {
-			return
-		}
 		err := task()
 		if err != nil {
 			wp.errorsCount.Add(1)
@@ -47,56 +36,31 @@ func (wp *WorkerPool) addWorker() {
 	}
 }
 
-func (wp *WorkerPool) runErrorsChecker() {
-	if wp.acceptErrorsCount <= 0 {
-		return
-	}
-	for {
-		wp.mx.Lock()
-		if wp.stopped {
-			defer wp.mx.Unlock()
-			return
-		}
-
-		wp.failed = int(wp.errorsCount.Load()) >= wp.acceptErrorsCount
-		wp.mx.Unlock()
-	}
-}
-
-func (wp *WorkerPool) Stop() {
-	wp.mx.Lock()
-	wp.stopped = true
-	wp.mx.Unlock()
-}
-
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n, m int) error {
-	runTasks := func() chan Task {
-		tasksChan := make(chan Task, n)
-		go func() {
-			for _, task := range tasks {
-				tasksChan <- task
-			}
-			close(tasksChan)
-		}()
-		return tasksChan
+	if n < 0 || m < 0 {
+		return errors.New("n and m must not be less than zero")
 	}
+	tasksChan := make(chan Task)
 
-	tasksChan := runTasks()
+	wp := NewWorkerPool(tasksChan, m)
 
-	wp := NewWorkerPool(n, tasksChan, m)
-
-	for range n {
+	for i := 0; i < n; i++ {
 		wp.wg.Add(1)
 		go wp.addWorker()
 	}
 
-	go wp.runErrorsChecker()
+	for _, task := range tasks {
+		if int(wp.errorsCount.Load()) >= wp.acceptErrorsCount {
+			break
+		}
+		tasksChan <- task
+	}
+	close(tasksChan)
 
 	wp.wg.Wait()
-	wp.Stop()
 
-	if wp.failed {
+	if int(wp.errorsCount.Load()) >= wp.acceptErrorsCount {
 		return ErrErrorsLimitExceeded
 	}
 
