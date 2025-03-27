@@ -17,17 +17,47 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 }
 
 func gen(in In, done In) Out {
-	out := make(chan interface{})
+	out := make(Bi)
 	go func() {
 		defer close(out)
-		for elem := range in {
+		for {
 			select {
+			case e, ok := <-in:
+				if !ok {
+					return
+				}
+				out <- e
+				// select {
+				// case <-done:
+				// 	return
+				// case out <- e:
+				// default:
+				// 	if ok {
+				// 		out <- e
+				// 	}
+				// }
+
 			case <-done:
 				return
-			default:
-				out <- elem
 			}
 		}
+
+		// for {
+		// 	select {
+		// 	case out <- <-in:
+		// 	case <-done:
+		// 		return
+		// 	}
+		// }
+
+		// for elem := range in {
+		// 	select {
+		// 	case <-done:
+		// 		return
+		// 	default:
+		// 		out <- elem
+		// 	}
+		// }
 	}()
 	return out
 }
