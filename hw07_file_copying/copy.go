@@ -36,9 +36,9 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	if offset > sizeFile {
 		return ErrOffsetExceedsFileSize
 	}
-
-	if limit > sizeFile || limit == 0 {
-		limit = sizeFile - offset
+	maxCopiedSize := sizeFile - offset
+	if limit > maxCopiedSize || limit == 0 {
+		limit = maxCopiedSize
 	}
 
 	buf := make([]byte, limit)

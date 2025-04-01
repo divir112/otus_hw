@@ -58,10 +58,10 @@ func TestCopy(t *testing.T) {
 			Limit:            1000,
 		},
 		{
-			Name:             "offset 6000 and limit 10000",
+			Name:             "offset 6000 and limit 1000",
 			ExpectedFilePath: "testdata/out_offset6000_limit1000.txt",
 			Offset:           6000,
-			Limit:            10000,
+			Limit:            1000,
 		},
 	}
 	for _, caseT := range cases {
