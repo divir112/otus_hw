@@ -2,8 +2,12 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
@@ -42,10 +46,37 @@ func TestValidate(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			// Place your code here.
+			User{
+				ID:     "123456789012345678901234567890123456",
+				Name:   "Igor",
+				Age:    20,
+				Email:  "test@mail.ru",
+				Role:   "admin",
+				Phones: []string{"7", "7", "7", "7", "7", "7", "7", "7", "7", "7", "7"},
+			},
+			nil,
 		},
-		// ...
-		// Place your code here.
+		{
+			App{
+				Version: "12345",
+			},
+			nil,
+		},
+		{
+			Token{
+				Header:    []byte("qwerty"),
+				Payload:   []byte("qwerty"),
+				Signature: []byte("qwerty"),
+			},
+			nil,
+		},
+		{
+			Response{
+				Code: 200,
+				Body: "{}",
+			},
+			nil,
+		},
 	}
 
 	for i, tt := range tests {
@@ -53,8 +84,28 @@ func TestValidate(t *testing.T) {
 			tt := tt
 			t.Parallel()
 
-			// Place your code here.
-			_ = tt
+			err := Validate(tt)
+			require.NoError(t, err, tt.expectedErr)
 		})
+	}
+}
+
+func TestNegativeValidation(t *testing.T) {
+	user := User{
+		ID:     "12",
+		Name:   "Igor",
+		Age:    15,
+		Email:  "test@mail.",
+		Role:   "adm",
+		Phones: []string{"7", "7", "7", "7", "7", "7", "7", "7", "7", "7"},
+	}
+
+	err := Validate(user)
+	var actualErrors ValidationErrors
+	errors.As(err, &actualErrors)
+	require.Error(t, actualErrors)
+	errorFields := []string{"ID", "Name", "Age", "Email", "Role", "Phones"}
+	for i := range len(actualErrors) {
+		assert.Contains(t, errorFields, actualErrors[i].Field)
 	}
 }
