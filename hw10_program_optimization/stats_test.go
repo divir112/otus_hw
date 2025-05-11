@@ -45,3 +45,9 @@ func BenchmarkStat(b *testing.B) {
 		GetDomainStat(bytes.NewBufferString(data), "com")
 	}
 }
+
+func BenchmarkStatOld(b *testing.B) {
+	for i := 0; i <= b.N; i++ {
+		GetDomainStatOld(bytes.NewBufferString(data), "com")
+	}
+}
