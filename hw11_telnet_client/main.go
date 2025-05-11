@@ -57,19 +57,13 @@ func main() {
 	}()
 
 	go func() {
-		err := telnetClient.Receive()
-		if err != nil {
-			telnetClient.Close()
-			return
+		for {
+			err := telnetClient.Receive()
+			if err != nil {
+				telnetClient.Close()
+				return
+			}
 		}
-
-		msg, err := io.ReadAll(writer)
-		if err != nil {
-			telnetClient.Close()
-			return
-		}
-
-		fmt.Println(msg)
 	}()
 
 	<-ctx.Done()

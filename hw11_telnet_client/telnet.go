@@ -75,19 +75,29 @@ func (c *telnetClient) Send() error {
 
 func (c *telnetClient) Receive() error {
 	scanner := bufio.NewScanner(c.conn)
-	if scan := scanner.Scan(); !scan {
-		if err := scanner.Err(); err != nil {
-			return fmt.Errorf("read from server %w", err)
-		}
-		return ErrClosedConnection
-	}
 
-	message := scanner.Bytes()
-	message = append(message, '\n')
-	_, err := c.out.Write(message)
-	if err != nil {
-		return fmt.Errorf("receive message %w", err)
+	for scanner.Scan() {
+		message := scanner.Bytes()
+		message = append(message, '\n')
+		_, err := c.out.Write(message)
+		if err != nil {
+			return fmt.Errorf("receive message %w", err)
+		}
+		fmt.Print(string(message))
 	}
+	// if scan := scanner.Scan(); !scan {
+	// 	if err := scanner.Err(); err != nil {
+	// 		return fmt.Errorf("read from server %w", err)
+	// 	}
+	// 	return ErrClosedConnection
+	// }
+
+	// message := scanner.Bytes()
+	// message = append(message, '\n')
+	// _, err := c.out.Write(message)
+	// if err != nil {
+	// 	return fmt.Errorf("receive message %w", err)
+	// }
 
 	return nil
 }
