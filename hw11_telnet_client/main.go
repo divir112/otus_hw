@@ -47,7 +47,7 @@ func main() {
 				telnetClient.Close()
 				cancel()
 				if errors.Is(err, ErrClosedConnection) {
-					fmt.Fprintln(os.Stderr, "...Connection wwas closed")
+					fmt.Fprintln(os.Stderr, "...Connection was closed")
 				}
 				return
 			}
