@@ -1,7 +1,8 @@
 package hw10programoptimization
 
 import (
-	"encoding/json"
+	"bufio"
+	json "encoding/json"
 	"fmt"
 	"io"
 	"regexp"
@@ -21,6 +22,28 @@ type User struct {
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
+	scanner := bufio.NewScanner(r)
+
+	result := make(DomainStat)
+	substr := "." + domain
+	for scanner.Scan() {
+		var user User
+		line := scanner.Bytes()
+
+		if err := user.UnmarshalJSON(line); err != nil {
+			return nil, err
+		}
+
+		if strings.Contains(user.Email, substr) {
+			key := strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
+			result[key]++
+		}
+	}
+
+	return result, nil
+}
+
+func GetDomainStatOld(r io.Reader, domain string) (DomainStat, error) {
 	u, err := getUsers(r)
 	if err != nil {
 		return nil, fmt.Errorf("get users error: %w", err)
@@ -62,5 +85,6 @@ func countDomains(u users, domain string) (DomainStat, error) {
 			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
 		}
 	}
+
 	return result, nil
 }
