@@ -28,7 +28,7 @@ func main() {
 	ctxWithTimeout, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	ctx, cancel := signal.NotifyContext(ctxWithTimeout, os.Interrupt, syscall.SIGINT)
+	ctx, cancel := signal.NotifyContext(ctxWithTimeout, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
 	err := telnetClient.Connect()
