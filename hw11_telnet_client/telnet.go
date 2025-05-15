@@ -53,6 +53,11 @@ func (c *telnetClient) Close() error {
 }
 
 func (c *telnetClient) Send() error {
+	// _, err := io.Copy(c.conn, c.int)
+	// if err != nil {
+	// 	return err
+	// }
+
 	scanner := bufio.NewScanner(c.in)
 	if scan := scanner.Scan(); !scan {
 		if scanner.Err() != nil {
@@ -74,6 +79,10 @@ func (c *telnetClient) Send() error {
 }
 
 func (c *telnetClient) Receive() error {
+	// _, err := io.Copy(c.out, c.conn)
+	// if err != nil {
+	// 	return err
+	// }
 	scanner := bufio.NewScanner(c.conn)
 
 	for scanner.Scan() {
@@ -85,22 +94,6 @@ func (c *telnetClient) Receive() error {
 		}
 		fmt.Print(string(message))
 	}
-	// if scan := scanner.Scan(); !scan {
-	// 	if err := scanner.Err(); err != nil {
-	// 		return fmt.Errorf("read from server %w", err)
-	// 	}
-	// 	return ErrClosedConnection
-	// }
-
-	// message := scanner.Bytes()
-	// message = append(message, '\n')
-	// _, err := c.out.Write(message)
-	// if err != nil {
-	// 	return fmt.Errorf("receive message %w", err)
-	// }
 
 	return nil
 }
-
-// Place your code here.
-// P.S. Author's solution takes no more than 50 lines.
