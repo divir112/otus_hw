@@ -31,4 +31,7 @@ install-lint-deps:
 lint: install-lint-deps
 	golangci-lint run ./...
 
-.PHONY: build run build-img run-img version test lint
+migrate:
+	goose -dir migrations postgres "postgresql://postgresql@localhost:5432?dbname=calendar&user=postgres" up
+
+.PHONY: build run build-img run-img version test lint migrate
