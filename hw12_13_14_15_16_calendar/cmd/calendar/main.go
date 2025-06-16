@@ -1,3 +1,4 @@
+//nolint:depguard
 package main
 
 import (
@@ -10,12 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/divir112/otus_hw/internal/app"
-	"github.com/divir112/otus_hw/internal/config"
-	"github.com/divir112/otus_hw/internal/logger"
-	"github.com/divir112/otus_hw/internal/model"
-	internalhttp "github.com/divir112/otus_hw/internal/server/http"
-	memorystorage "github.com/divir112/otus_hw/internal/storage/memory"
+	"github.com/divir112/otus_hw/internal/app"                          //nolint:depguard
+	"github.com/divir112/otus_hw/internal/config"                       //nolint:depguard
+	"github.com/divir112/otus_hw/internal/logger"                       //nolint:depguard
+	"github.com/divir112/otus_hw/internal/model"                        //nolint:depguard
+	internalhttp "github.com/divir112/otus_hw/internal/server/http"     //nolint:depguard
+	memorystorage "github.com/divir112/otus_hw/internal/storage/memory" //nolint:depguard
 )
 
 var configFile string
@@ -46,7 +47,10 @@ func main() {
 	server := internalhttp.NewServer(logg, calendar)
 	server.Mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("HelloWorld!"))
+		_, err := w.Write([]byte("HelloWorld!"))
+		if err != nil {
+			logg.Error(fmt.Sprintf("can't response %v", err))
+		}
 	})
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
