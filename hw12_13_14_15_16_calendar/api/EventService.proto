@@ -2,6 +2,53 @@ syntax = "proto3";
 
 package event;
 
-message Event {
-    // TODO
+option go_package = "internal/pb/event_service;event_service";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+
+service EventService {
+    rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse){
+        option (google.api.http) = {
+            post: "/v1/events"
+            body: "*"
+        };
+    };
+    rpc GetEvents(GetEventsRequest) returns (GetEventsResponse);
+    rpc UpdateEvent(Event) returns (UpdateEventsResponse);
+    rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
 }
+
+message CreateEventRequest {
+    string header = 1;
+    string description = 2;
+    google.protobuf.Timestamp date = 3;
+    google.protobuf.Timestamp date_end = 4;
+    string owner = 5;
+}
+
+message CreateEventResponse {}
+
+message GetEventsRequest {}
+
+message GetEventsResponse {
+    repeated Event events = 1;
+}
+
+message Event {
+    int64 id = 1;
+    string header = 2;
+    google.protobuf.Timestamp date = 3;
+    google.protobuf.Timestamp date_end = 4;
+    string description = 5;
+    string owner = 6;
+}
+
+message UpdateEventsResponse {}
+
+message DeleteEventRequest {
+    int64 id = 1;
+}
+
+message DeleteEventResponse {}
