@@ -40,7 +40,7 @@ func (m *Interceptor) loggingMiddleware(ctx context.Context, req any, info *grpc
 		return nil, err
 	}
 	duration := time.Since(date).Microseconds()
-	m.logger.Info(fmt.Sprintf("%s [%s] %s %s", ip, formatTime, method, duration))
+	m.logger.Info(fmt.Sprintf("%s [%s] %s %d", ip, formatTime, method, duration))
 
 	return resp, nil
 }

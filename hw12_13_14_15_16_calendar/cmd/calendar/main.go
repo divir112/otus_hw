@@ -63,9 +63,11 @@ func main() {
 
 	go func() {
 		serverGRPC := grpc.NewServer(calendar, logg)
-		serverGRPC.Start()
+		err := serverGRPC.Start()
+		if err != nil {
+			panic(err)
+		}
 	}()
-
 	go func() {
 		<-ctx.Done()
 

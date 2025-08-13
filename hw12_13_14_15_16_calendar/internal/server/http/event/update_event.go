@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -26,7 +27,12 @@ func (s *EventServiceHTTP) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := r.Body
-	defer r.Body.Close()
+	defer func() {
+		err := r.Body.Close()
+		if err != nil {
+			s.logger.Error(fmt.Sprintf("can't close request body: %v", err))
+		}
+	}()
 
 	dataRequest, err := io.ReadAll(body)
 	if err != nil {
