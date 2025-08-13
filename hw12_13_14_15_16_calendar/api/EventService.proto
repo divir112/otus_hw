@@ -18,6 +18,9 @@ service EventService {
     rpc GetEvents(GetEventsRequest) returns (GetEventsResponse);
     rpc UpdateEvent(Event) returns (UpdateEventsResponse);
     rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
+    rpc GetEventListForDay(GetEventListForDateRequest) returns (GetEventsResponse);
+    rpc GetEventListForWeek(GetEventListForDateRequest) returns (GetEventsResponse);
+    rpc GetEventListForMonth(GetEventListForDateRequest) returns (GetEventsResponse);
 }
 
 message CreateEventRequest {
@@ -52,3 +55,7 @@ message DeleteEventRequest {
 }
 
 message DeleteEventResponse {}
+
+message GetEventListForDateRequest {
+    google.protobuf.Timestamp date = 1;
+}

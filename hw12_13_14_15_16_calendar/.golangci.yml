@@ -1,0 +1,12 @@
+linters-settings:
+  depguard:
+    list-type: whitelist
+    include-go-root: true
+    packages:
+      - main:
+          - "github.com/divir112/otus_hw/internal/**"
+          - "github.com/ilyakaznacheev/cleanenv"
+          - "github.com/jackc/pgx/v4/pgxpool"
+          - "github.com/georgysavva/scany/pgxscan"
+      - test:
+          - "github.com/divir112/otus_hw/internal/**"

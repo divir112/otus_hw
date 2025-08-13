@@ -8,7 +8,7 @@ build:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
 run: build
-	$(BIN) -config ./configs/config.toml
+	$(BIN) -config ./configs/config.yaml
 
 build-img:
 	docker build \
@@ -33,5 +33,8 @@ lint: install-lint-deps
 
 migrate:
 	goose -dir migrations postgres "postgresql://postgresql@localhost:5432?dbname=calendar&user=postgres" up
+
+generate:
+	protoc  --go_out=. --go-grpc_out=. --grpc-gateway_out=. --proto_path=./api/ EventService.proto
 
 .PHONY: build run build-img run-img version test lint migrate

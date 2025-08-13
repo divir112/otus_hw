@@ -3,7 +3,9 @@ package app
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/divir112/otus_hw/internal/apperror"
 	"github.com/divir112/otus_hw/internal/model"
 )
 
@@ -20,7 +22,10 @@ type Storage interface {
 	Add(context.Context, model.Event) (int, error)
 	Update(context.Context, int, model.Event) error
 	Delete(context.Context, int) error
+	GetEvent(ctx context.Context, id int) (model.Event, error)
 	List(context.Context) ([]model.Event, error)
+	CheckEventIsExists(ctx context.Context, startEvet, endEvent time.Time) (bool, error)
+	GetEventsByDays(ctx context.Context, days int, date string) ([]model.Event, error)
 }
 
 func New(l Logger, s Storage) *App {
@@ -30,12 +35,65 @@ func New(l Logger, s Storage) *App {
 	}
 }
 
-func (a *App) CreateEvent(ctx context.Context, id int, header string) error {
-	_, err := a.storage.Add(ctx, model.Event{ID: id, Header: header})
+func (a *App) CreateEvent(ctx context.Context, event model.Event) error {
+	if event.DateEnd.Before(event.Date) {
+		return apperror.ErrTimeEndLessStart
+	}
+
+	exists, err := a.storage.CheckEventIsExists(ctx, event.Date, event.DateEnd)
+	if err != nil {
+		return fmt.Errorf("can't check existsing event: %w", err)
+	}
+
+	if exists {
+		return apperror.ErrDateBusy
+	}
+
+	_, err = a.storage.Add(ctx, event)
 	if err != nil {
 		return fmt.Errorf("can't create event %w", err)
 	}
 	return nil
+}
+
+func (a *App) GetEvents(ctx context.Context) ([]model.Event, error) {
+	events, err := a.storage.List(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("can't get events %w", err)
+	}
+	return events, nil
+}
+
+func (a *App) UpdateEvents(ctx context.Context, id int, event model.Event) error {
+	_, err := a.storage.GetEvent(ctx, id)
+	if err != nil {
+		return fmt.Errorf("cam't get event: %w", err)
+	}
+
+	err = a.storage.Update(ctx, id, event)
+	if err != nil {
+		return fmt.Errorf("can't update event %w", err)
+	}
+
+	return nil
+}
+
+func (a *App) DeleteEvent(ctx context.Context, id int) error {
+	err := a.storage.Delete(ctx, id)
+	if err != nil {
+		return fmt.Errorf("can't delete event %w", err)
+	}
+
+	return nil
+}
+
+func (a *App) GetEventsByDate(ctx context.Context, days int, date string) ([]model.Event, error) {
+	events, err := a.storage.GetEventsByDays(ctx, days, date)
+	if err != nil {
+		return nil, fmt.Errorf("can't get events for %d days: %w", days, err)
+	}
+
+	return events, nil
 }
 
 // TODO
