@@ -13,10 +13,10 @@ import (
 
 func (s *EventService) GetEventListForDay(ctx context.Context, req *desc.GetEventListForDateRequest) (*desc.GetEventsResponse, error) {
 	date := req.GetDate()
-	if date == nil {
+	if date == "" {
 		return nil, status.Error(codes.InvalidArgument, "date is required")
 	}
-	strDate := date.AsTime().Format("2006-01-02")
+	strDate := date
 	events, err := s.app.GetEventsByDate(ctx, 1, strDate)
 	if err != nil {
 		if errors.Is(err, apperror.ErrIncorrectDate) {

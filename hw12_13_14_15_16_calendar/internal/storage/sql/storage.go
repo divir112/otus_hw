@@ -100,13 +100,9 @@ func (s *Storage) GetEvent(ctx context.Context, id int) (model.Event, error) {
 	return event, nil
 }
 
-func (s *Storage) GetEventsByDays(ctx context.Context, days int, date string) ([]model.Event, error) {
-	currentDate, err := time.Parse("2006-01-02", date)
-	if err != nil {
-		return nil, fmt.Errorf("can't parse date: %w, %w", err, apperror.ErrIncorrectDate)
-	}
-	toDate := currentDate.Add(time.Duration(days) * (time.Hour * 24)).Format("2006-01-02")
-	rows, err := s.pool.Query(ctx, "SELECT id, header, date, dateend, description, owner FROM event WHERE date BETWEEN $1 AND $2", currentDate, toDate)
+func (s *Storage) GetEventsByDays(ctx context.Context, days int, date time.Time) ([]model.Event, error) {
+	toDate := date.Add(time.Duration(days) * (time.Hour * 24)).Format("2006-01-02")
+	rows, err := s.pool.Query(ctx, "SELECT id, header, date, dateend, description, owner FROM event WHERE date BETWEEN $1 AND $2", date, toDate)
 	if err != nil {
 		return nil, fmt.Errorf("can't get events by date %w", err)
 	}

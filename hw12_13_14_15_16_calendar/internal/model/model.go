@@ -10,3 +10,7 @@ type Event struct {
 	Description string
 	Owner       string
 }
+
+type GetEventByDateRequest struct {
+	Date string
+}

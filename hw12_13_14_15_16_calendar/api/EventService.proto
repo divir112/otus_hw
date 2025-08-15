@@ -57,5 +57,5 @@ message DeleteEventRequest {
 message DeleteEventResponse {}
 
 message GetEventListForDateRequest {
-    google.protobuf.Timestamp date = 1;
+    string date = 1;
 }

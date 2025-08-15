@@ -25,7 +25,7 @@ type Storage interface {
 	GetEvent(ctx context.Context, id int) (model.Event, error)
 	List(context.Context) ([]model.Event, error)
 	CheckEventIsExists(ctx context.Context, startEvet, endEvent time.Time) (bool, error)
-	GetEventsByDays(ctx context.Context, days int, date string) ([]model.Event, error)
+	GetEventsByDays(ctx context.Context, days int, date time.Time) ([]model.Event, error)
 }
 
 func New(l Logger, s Storage) *App {
@@ -88,7 +88,11 @@ func (a *App) DeleteEvent(ctx context.Context, id int) error {
 }
 
 func (a *App) GetEventsByDate(ctx context.Context, days int, date string) ([]model.Event, error) {
-	events, err := a.storage.GetEventsByDays(ctx, days, date)
+	currentDate, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		return nil, fmt.Errorf("can't parse date: %w, %w", err, apperror.ErrIncorrectDate)
+	}
+	events, err := a.storage.GetEventsByDays(ctx, days, currentDate)
 	if err != nil {
 		return nil, fmt.Errorf("can't get events for %d days: %w", days, err)
 	}

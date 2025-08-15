@@ -2,7 +2,7 @@ version: "2"
 
 linters-settings:
   depguard:
-    list-type: whitelist
+    list-type: allowlist
     include-go-root: true
     packages:
       - main:
@@ -10,6 +10,6 @@ linters-settings:
           - "github.com/ilyakaznacheev/cleanenv"
           - "github.com/jackc/pgx/v4/pgxpool"
           - "github.com/georgysavva/scany/pgxscan"
-          - "github.com/jackc/pgx/v4/**"
+          - "github.com/jackc/pgx/**"
       - test:
           - "github.com/divir112/otus_hw/internal/**"

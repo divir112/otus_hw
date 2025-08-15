@@ -29,6 +29,7 @@ type Application interface {
 	GetEvents(ctx context.Context) ([]model.Event, error)
 	UpdateEvents(ctx context.Context, id int, event model.Event) error
 	DeleteEvent(ctx context.Context, id int) error
+	GetEventsByDate(ctx context.Context, days int, date string) ([]model.Event, error)
 }
 
 type Storage interface {
