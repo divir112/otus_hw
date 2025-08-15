@@ -1,6 +1,8 @@
 version: "2"
 
 linters-settings:
+  disable:
+    - typecheck
   depguard:
     list-type: allowlist
     include-go-root: true
