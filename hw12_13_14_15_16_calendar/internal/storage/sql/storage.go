@@ -4,13 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
-
-	"github.com/divir112/otus_hw/internal/apperror"
-	"github.com/divir112/otus_hw/internal/model"
-	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"time"
+
+	"github.com/divir112/otus_hw/internal/model"
+	"github.com/georgysavva/scany/pgxscan"
 )
 
 type Storage struct {
@@ -92,9 +91,9 @@ func (s *Storage) GetEvent(ctx context.Context, id int) (model.Event, error) {
 	var event model.Event
 	err = pgxscan.ScanOne(&event, rows)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Event{}, apperror.ErrNotFound
-		}
+		//if errors.Is(err, pgx.ErrNoRows) {
+		//	return model.Event{}, apperror.ErrNotFound
+		//}
 		return model.Event{}, fmt.Errorf("can't scan event %w", err)
 	}
 	return event, nil
