@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/divir112/otus_hw/internal/apperror"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"time"
@@ -91,9 +92,9 @@ func (s *Storage) GetEvent(ctx context.Context, id int) (model.Event, error) {
 	var event model.Event
 	err = pgxscan.ScanOne(&event, rows)
 	if err != nil {
-		//if errors.Is(err, pgx.ErrNoRows) {
-		//	return model.Event{}, apperror.ErrNotFound
-		//}
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Event{}, apperror.ErrNotFound
+		}
 		return model.Event{}, fmt.Errorf("can't scan event %w", err)
 	}
 	return event, nil
