@@ -3,10 +3,12 @@ package event
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 
+	"github.com/divir112/otus_hw/internal/apperror"
 	"github.com/divir112/otus_hw/internal/model"
 )
 
@@ -36,12 +38,16 @@ func (s *EventServiceHTTP) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.app.CreateEvent(ctx, event)
+	id, err := s.app.CreateEvent(ctx, event)
 	if err != nil {
+		if errors.Is(err, apperror.ErrDateBusy) {
+			http.Error(w, "date is busy", http.StatusConflict)
+		}
 		s.logger.Error("can't create event: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(fmt.Sprintf(`{"id": %d}`, id)))
 }

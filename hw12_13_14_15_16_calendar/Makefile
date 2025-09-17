@@ -34,6 +34,9 @@ lint: install-lint-deps
 migrate:
 	goose -dir migrations postgres "postgresql://postgresql@localhost:5432?dbname=calendar&user=postgres" up
 
+run-docker-compose:
+	docker compose -f ./build/docker-compose.yaml up
+
 generate:
 	protoc  --go_out=. --go-grpc_out=. --grpc-gateway_out=. --proto_path=./api/ EventService.proto
 

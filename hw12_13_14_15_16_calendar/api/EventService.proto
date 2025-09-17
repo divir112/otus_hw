@@ -24,14 +24,16 @@ service EventService {
 }
 
 message CreateEventRequest {
-    string header = 1;
+    string title = 1;
     string description = 2;
-    google.protobuf.Timestamp date = 3;
-    google.protobuf.Timestamp date_end = 4;
-    string owner = 5;
+    google.protobuf.Timestamp start_time = 3;
+    google.protobuf.Timestamp end_time = 4;
+    int64 user_id = 5;
 }
 
-message CreateEventResponse {}
+message CreateEventResponse {
+    int64 id = 1; 
+}
 
 message GetEventsRequest {}
 
@@ -41,11 +43,11 @@ message GetEventsResponse {
 
 message Event {
     int64 id = 1;
-    string header = 2;
-    google.protobuf.Timestamp date = 3;
-    google.protobuf.Timestamp date_end = 4;
+    string title = 2;
+    google.protobuf.Timestamp start_time = 3;
+    google.protobuf.Timestamp end_time = 4;
     string description = 5;
-    string owner = 6;
+    int64 user_id = 6;
 }
 
 message UpdateEventsResponse {}

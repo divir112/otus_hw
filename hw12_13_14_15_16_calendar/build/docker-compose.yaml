@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:13.3
+    environment:
+      POSTGRES_DB: "calendar"
+      POSTGRES_USER: "habrpguser"
+      POSTGRES_PASSWORD: "pgpwd4habr"
+    ports:
+      - "5432:5432"
+  migrations:
+    build:
+      context: ..
+      dockerfile: ./migrations/build/Dockerfile
+    environment:
+      DBHOST: "postgres"
+      DBSSL: "disable"
+      DBNAME: "calendar"
+      DBUSER: "habrpguser"
+      DBPASSWORD: "pgpwd4habr"
+    depends_on:
+      - postgres
+  calendar:
+    build:
+      context: ..
+      dockerfile: ./build/Dockerfile
+    ports: 
+      - 8085:8085
+    restart: always
+    depends_on:
+      - postgres
+      - migrations
+    environment:
+      POSTGRES_PORT: 5432
+      POSTGRES_HOST: "postgres"
+      POSTGRES_DB: "calendar"
+      POSTGRES_USER: "habrpguser"
+      POSTGRES_PASSWORD: "pgpwd4habr"

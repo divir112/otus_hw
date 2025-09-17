@@ -17,7 +17,7 @@ type Logger interface {
 }
 
 type Application interface {
-	CreateEvent(ctx context.Context, event model.Event) error
+	CreateEvent(ctx context.Context, event model.Event) (int, error)
 	GetEvents(ctx context.Context) ([]model.Event, error)
 	UpdateEvents(ctx context.Context, id int, event model.Event) error
 	DeleteEvent(ctx context.Context, id int) error
@@ -35,7 +35,7 @@ func NewServer(app Application, logger Logger) *Server {
 }
 
 func (s *Server) Start() error {
-	lis, err := net.Listen("tcp", ":8084")
+	lis, err := net.Listen("tcp", ":8085")
 	if err != nil {
 		return err
 	}

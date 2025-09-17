@@ -2,8 +2,9 @@ package event
 
 import (
 	"context"
-	"time"
+	"errors"
 
+	"github.com/divir112/otus_hw/internal/apperror"
 	"github.com/divir112/otus_hw/internal/model"
 	desc "github.com/divir112/otus_hw/internal/pb/event_service"
 	"google.golang.org/grpc/codes"
@@ -11,9 +12,9 @@ import (
 )
 
 func (s *EventService) CreateEvent(ctx context.Context, req *desc.CreateEventRequest) (*desc.CreateEventResponse, error) {
-	header := req.Header
-	if header == "" {
-		return nil, status.Error(codes.InvalidArgument, "header is required")
+	title := req.Title
+	if title == "" {
+		return nil, status.Error(codes.InvalidArgument, "title is required")
 	}
 
 	description := req.Description
@@ -21,25 +22,28 @@ func (s *EventService) CreateEvent(ctx context.Context, req *desc.CreateEventReq
 		return nil, status.Error(codes.InvalidArgument, "description is required")
 	}
 
-	date := time.Now()
+	date := req.StartTime.AsTime()
 
-	dateEnd := req.DateEnd.AsTime()
-	owner := req.Owner
+	dateEnd := req.EndTime.AsTime()
+	userID := req.UserId
 
 	event := model.Event{
-		Header:      header,
+		Title:       title,
 		Description: description,
-		Date:        date,
-		DateEnd:     dateEnd,
-		Owner:       owner,
+		StartTime:   date,
+		EndTime:     dateEnd,
+		UserID:      int(userID),
 	}
 
-	err := s.app.CreateEvent(ctx, event)
+	id, err := s.app.CreateEvent(ctx, event)
 
 	if err != nil {
 		s.logger.Error("error: %v", err)
+		if errors.Is(err, apperror.ErrTimeEndLessStart) {
+			return nil, status.Error(codes.AlreadyExists, "date is busy")
+		}
 		return nil, status.Error(codes.Internal, "can't create event")
 	}
 
-	return &desc.CreateEventResponse{}, nil
+	return &desc.CreateEventResponse{Id: int64(id)}, nil
 }

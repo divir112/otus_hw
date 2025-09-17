@@ -6,8 +6,10 @@ database:
   host: localhost
   port: 5432
   username: postgres
-  password: 
+  password:
   dbname: calendar
-    
 
-
+rabbit:
+  host: localhost
+  port: 5672
+  queue: calendar

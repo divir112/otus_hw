@@ -10,11 +10,11 @@ import (
 
 func TestMemoryStorage(t *testing.T) {
 	event := model.Event{
-		Header:      "test header",
-		Date:        time.Now(),
-		DateEnd:     time.Now().Add(time.Hour),
+		Title:       "test header",
+		StartTime:   time.Now(),
+		EndTime:     time.Now().Add(time.Hour),
 		Description: "test description",
-		Owner:       "tester",
+		UserID:      44,
 	}
 	t.Run("test create event", func(t *testing.T) {
 		events := make(map[int]model.Event)
@@ -45,11 +45,11 @@ func TestMemoryStorage(t *testing.T) {
 		events[1] = event
 
 		updatedEvent := model.Event{
-			Header:      "epdated header",
-			Date:        time.Now(),
-			DateEnd:     time.Now().Add(time.Hour),
+			Title:       "epdated title",
+			StartTime:   time.Now(),
+			EndTime:     time.Now().Add(time.Hour),
 			Description: "epdated description",
-			Owner:       "epdated",
+			UserID:      44,
 		}
 		err := storage.Update(nil, id, updatedEvent) //nolint
 		require.NoError(t, err)

@@ -42,13 +42,10 @@ func main() {
 		panic(fmt.Sprintf("Can't create config %v", err))
 	}
 
-	fmt.Println(config.Logger.Level)
 	logg := logger.New(config.Logger.Level, os.Stdout)
-	// events := make(map[int]model.Event)
 	ctx := context.Background()
-	// storage := memorystorage.New(events)
-	connstring := fmt.Sprintf("postgresql://postgresql@%s:%d?dbname=%s&user=%s", config.Database.Host, config.Database.Port, config.Database.DBName, config.Database.Username)
-	pool, err := pgxpool.Connect(ctx, connstring)
+	connString := fmt.Sprintf("postgresql://%s:%d?dbname=%s&user=%s&password=%s&sslmode=disable", config.Database.Host, config.Database.Port, config.Database.DBName, config.Database.Username, config.Database.Password)
+	pool, err := pgxpool.Connect(ctx, connString)
 	if err != nil {
 		panic(err)
 	}

@@ -16,11 +16,11 @@ func (s *EventService) UpdateEvent(ctx context.Context, req *desc.Event) (*desc.
 	}
 
 	event := model.Event{
-		Header:      req.Header,
-		Owner:       req.Owner,
+		Title:       req.Title,
+		UserID:      int(req.UserId),
 		Description: req.Description,
-		Date:        req.Date.AsTime(),
-		DateEnd:     req.DateEnd.AsTime(),
+		StartTime:   req.StartTime.AsTime(),
+		EndTime:     req.EndTime.AsTime(),
 	}
 
 	err := s.app.UpdateEvents(ctx, int(id), event)

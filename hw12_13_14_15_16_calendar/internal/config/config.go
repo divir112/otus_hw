@@ -16,16 +16,16 @@ type Config struct {
 }
 
 type LoggerConf struct {
-	Level string "yaml:level env-required" //nolint
+	Level string `yaml:"level" env-required` //nolint
 }
 
 type DBConf struct {
-	Type     string "yaml:level env-required"  //nolint
-	Host     string "yaml:host env-required"   //nolint
-	Port     int    "yaml:port env-required"   //nolint
-	Username string "yaml:username"            //nolint
-	Password string "yaml:password"            //nolint
-	DBName   string "yaml:dbname env-required" //nolint
+	Type     string `yaml:"level"`                                 //nolint
+	Host     string `yaml:"host" env:"POSTGRES_HOST" env-required` //nolint
+	Port     int    `yaml:"port" env:"POSTGRES_PORT" env-required` //nolint
+	Username string `yaml:"username" env:"POSTGRES_USER"`          //nolint
+	Password string `yaml:"password" env:"POSTGRES_PASSWORD"`      //nolint
+	DBName   string `yaml:"dbname" env:"POSTGRES_DB" env-required` //nolint
 }
 
 func NewConfig(path string) (*Config, error) {

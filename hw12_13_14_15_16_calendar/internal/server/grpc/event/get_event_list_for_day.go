@@ -29,11 +29,11 @@ func (s *EventService) GetEventListForDay(ctx context.Context, req *desc.GetEven
 	for _, event := range events {
 		eventsResp = append(eventsResp, &desc.Event{
 			Id:          int64(event.ID),
-			Header:      event.Header,
+			Title:       event.Title,
 			Description: event.Description,
-			Date:        timestamppb.New(event.Date),
-			DateEnd:     timestamppb.New(event.DateEnd),
-			Owner:       event.Owner,
+			StartTime:   timestamppb.New(event.StartTime),
+			EndTime:     timestamppb.New(event.EndTime),
+			UserId:      int64(event.UserID),
 		})
 	}
 

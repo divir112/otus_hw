@@ -1,12 +1,13 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE event(
-    ID BIGSERIAL PRIMARY KEY,
-    Header TEXT,
-    Date timestamp with time zone,
-    DateEnd timestamp with time zone,
-    Description TEXT,
-    Owner TEXT
+    id BIGSERIAL PRIMARY KEY,
+    title TEXT,
+    start_time timestamp with time zone,
+    end_time timestamp with time zone,
+    description TEXT,
+    user_id INTEGER,
+    ping_before INTEGER
 );
 -- +goose StatementEnd
 
