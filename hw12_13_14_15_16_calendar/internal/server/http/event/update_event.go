@@ -3,12 +3,14 @@ package event
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/divir112/otus_hw/internal/apperror"
 	"github.com/divir112/otus_hw/internal/model"
 )
 
@@ -51,6 +53,9 @@ func (s *EventServiceHTTP) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 
 	err = s.app.UpdateEvents(ctx, id, event)
 	if err != nil {
+		if errors.Is(err, apperror.ErrNotFound) {
+			http.Error(w, "event does not exist", http.StatusNotFound)
+		}
 		s.logger.Error("can't update event: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

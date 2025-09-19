@@ -66,9 +66,29 @@ func (a *App) GetEvents(ctx context.Context) ([]model.Event, error) {
 }
 
 func (a *App) UpdateEvents(ctx context.Context, id int, event model.Event) error {
-	_, err := a.storage.GetEvent(ctx, id)
+	oldEvent, err := a.storage.GetEvent(ctx, id)
 	if err != nil {
 		return fmt.Errorf("cam't get event: %w", err)
+	}
+
+	if event.Title == "" {
+		event.Title = oldEvent.Title
+	}
+
+	if event.Description == "" {
+		event.Description = oldEvent.Description
+	}
+
+	if event.StartTime.IsZero() {
+		event.StartTime = oldEvent.StartTime
+	}
+
+	if event.EndTime.IsZero() {
+		event.EndTime = oldEvent.EndTime
+	}
+
+	if event.UserID == 0 {
+		event.UserID = oldEvent.UserID
 	}
 
 	err = a.storage.Update(ctx, id, event)
